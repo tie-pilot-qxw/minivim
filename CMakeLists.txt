@@ -16,6 +16,7 @@ set(MY_SOURCES
  ${PROJECT_SOURCE_DIR}/src/command_window.cpp
  ${PROJECT_SOURCE_DIR}/src/file_window.cpp
  ${PROJECT_SOURCE_DIR}/src/information_window.cpp
+ ${PROJECT_SOURCE_DIR}/src/window.cpp
 )
 # specify an executable,
 # build from the specified source files
