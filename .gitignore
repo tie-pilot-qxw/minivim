@@ -1,3 +1,4 @@
 #ignore the build file and the released program
 bin/
 build/
+.vscode/

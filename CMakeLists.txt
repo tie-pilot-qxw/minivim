@@ -13,6 +13,9 @@ include_directories(${CURSES_INCLUDE_DIR})
 # create a variable which includes needed source files
 set(MY_SOURCES
  ${PROJECT_SOURCE_DIR}/src/main.cpp
+ ${PROJECT_SOURCE_DIR}/src/command_window.cpp
+ ${PROJECT_SOURCE_DIR}/src/file_window.cpp
+ ${PROJECT_SOURCE_DIR}/src/information_window.cpp
 )
 # specify an executable,
 # build from the specified source files
