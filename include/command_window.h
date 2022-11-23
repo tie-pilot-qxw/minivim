@@ -4,4 +4,7 @@
 class command_window : public window {
     private:
         std :: string commandText;
+        void print();
+    public:
+        bool tackle();
 };

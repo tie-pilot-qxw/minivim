@@ -2,5 +2,7 @@
 #include "window.h"
 class information_window : public window {
     private:
-        int type;
+        void print();
+    public:
+        void update();
 };
