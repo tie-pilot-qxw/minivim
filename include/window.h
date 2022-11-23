@@ -19,6 +19,7 @@ class window {
         std :: pair <int, int > windowSize;
         std :: pair <int, int > mousePos;
         WINDOW *win;
+        FILE *ferr;
         void updateMouse();
         virtual void print() = 0;
     public:

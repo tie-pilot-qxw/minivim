@@ -28,35 +28,30 @@ file_window::file_window() {
 }
 
 void file_window :: keyboard() {
-    char ch=getchar();
+    int ch=getch();
     if (state == NORMAL) normal(ch);
     else if (state == INSERT) insert(ch);
 }
 
-void file_window :: normal (char ch) {
+void file_window :: normal (int ch) {
     if(hasChange != change) {
         hasChange ^= 1;
         /*flush*/
     }
     switch (ch) {
-    case 37:
-        /*left*/
+    case KEY_LEFT:
         moveLeft();
         break;
-    case 38:
-        /*up*/
+    case KEY_UP:
         moveUp();
         break;
-    case 39:
-        /*right*/
+    case KEY_RIGHT:
         moveRight();
         break;
-    case 40:
-        /*down*/
+    case KEY_DOWN:
         moveDown();
         break;
     case ERR:
-        /*no input*/
         break;
     default:
         state = INSERT;
@@ -118,18 +113,19 @@ void file_window :: getRealPos() {
     for(int i = 0; i < inFilePos.first ; i ++ ) {
         realPos.first += getLineNum(i);
     }
-    int l = (inFilePos.second - 1) / windowWidth.second;
+    int l = (inFilePos.second) / windowWidth.second;
     realPos.first += l;
-    realPos.second = inFilePos.second - l;
+    realPos.second = inFilePos.second - l * windowWidth.second;
 }
 
 int file_window :: getLineNum(int l){
     /*may be you should tackle the tab*/
-    return (int) ((fileText[l].length() - 2) / windowWidth.second) + 1;
+    return ((std :: max((int)fileText[l].length() - 1, 0)) / windowWidth.second) + 1;
 }
 
 void file_window :: changeMouse() {
     wmove(win, realPos.first, realPos.second);
+    wrefresh(win);
 }
 
 void file_window :: print() {
@@ -149,7 +145,7 @@ void file_window :: print() {
     wrefresh(win);
 }
 
-void file_window :: insert(char ch) {
+void file_window :: insert(int ch) {
     
 }
 

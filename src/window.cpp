@@ -1,4 +1,5 @@
 #include "window.h"
+#include <fstream>
 int window :: windowNum = 0;
 int window :: colorNum = 0;
 bool window :: change = false;
@@ -6,6 +7,7 @@ int window :: state = NORMAL;
 std :: pair<int, int> window :: windowWidth = std :: make_pair(0, 0);
 
 window :: window() {
+    freopen("error.txt", "w", stderr);
     if (windowNum == 0) {
         initscr(); /* Start curses mode */
         raw();
@@ -43,6 +45,7 @@ window :: ~window() {
     windowNum--;
     delwin(win);
     if (windowNum == 0) {
+        fclose(ferr);
         endwin(); /* End curses mode */
     }
 }

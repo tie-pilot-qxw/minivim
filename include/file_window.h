@@ -10,8 +10,8 @@ class file_window : public window {
         std :: pair<int, int > inFilePos;
         std :: pair<int, int > realPos;
         void print();
-        void normal (char ch);
-        void insert (char ch);
+        void normal (int ch);
+        void insert (int ch);
         void moveLeft();
         void moveRight();
         void moveUp();
