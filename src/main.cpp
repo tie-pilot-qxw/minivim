@@ -7,12 +7,16 @@
 #include "window.h"
 
 bool call_back (command_window &cw, file_window &fw, information_window &iw){
-    window :: updateWindowWith();
-    if(window :: getState() == COMMAND) {
+    window :: updateConsoleSize();
+    if(window :: getMode() == COMMAND) {
         return cw.tackle();
+    }else {
+        if(fw.keyboard()) {
+            iw.clear();
+            cw.init();
+        }
+        else iw.update();
     }
-    else fw.keyboard();
-    iw.update();
     return true;
 }
 

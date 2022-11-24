@@ -5,4 +5,5 @@ class information_window : public window {
         void print();
     public:
         void update();
+        void clear();
 };

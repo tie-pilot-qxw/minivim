@@ -3,8 +3,8 @@
 int window :: windowNum = 0;
 int window :: colorNum = 0;
 bool window :: change = false;
-int window :: state = NORMAL;
-std :: pair<int, int> window :: windowWidth = std :: make_pair(0, 0);
+int window :: mode = NORMAL;
+POS window :: consoleSize = std :: make_pair(0, 0);
 
 window :: window() {
     freopen("error.txt", "w", stderr);
@@ -34,7 +34,7 @@ window :: window() {
         //get the input without delay
         nodelay(stdscr, true);
 
-        updateWindowWith();
+        updateConsoleSize();
     }
     windowNum++;
     hasChange = false;
@@ -50,18 +50,22 @@ window :: ~window() {
     }
 }
 
-void window :: updateWindowWith() {
-    std :: pair <int, int> newpos;
-    getmaxyx(stdscr, newpos.first, newpos.second);
-    if(newpos == windowWidth) return;
-    windowWidth = newpos;
+void window :: updateConsoleSize() {
+    POS newsize;
+    getmaxyx(stdscr, newsize.first, newsize.second);
+    if(newsize == consoleSize) return;
+    consoleSize = newsize;
     change^=1;
 }
 
-int window :: getState() {
-    return state;
+int window :: getMode() {
+    return mode;
 }
 
 void window :: updateMouse() {
     getyx(win, mousePos.first, mousePos.second);
+}
+
+void window :: updateWindowSize() {
+    getmaxyx(win, windowSize.first, windowSize.second);
 }

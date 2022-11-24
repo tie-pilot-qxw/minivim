@@ -7,4 +7,5 @@ class command_window : public window {
         void print();
     public:
         bool tackle();
+        void init();
 };

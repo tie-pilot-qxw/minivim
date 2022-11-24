@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include <cstdlib>
 #include <utility>
+typedef std :: pair<int, int > POS;
 const int DEFAULT_COLOR = 0;
 const int NORMAL = 0;
 const int INSERT = 1;
@@ -11,20 +12,21 @@ class window {
         static int windowNum;
         
     protected:
-        static std :: pair <int, int > windowWidth;
+        static POS consoleSize;
         static int colorNum;
         static bool change; /*if change != hasChange, you need to update the window size*/
-        static int state;/*the mode the program is in*/
+        static int mode;/*the mode the program is in*/
         bool hasChange;
-        std :: pair <int, int > windowSize;
-        std :: pair <int, int > mousePos;
+        POS windowSize;
+        POS mousePos;
         WINDOW *win;
         FILE *ferr;
         void updateMouse();
+        virtual void updateWindowSize();
         virtual void print() = 0;
     public:
-        static void updateWindowWith();
-        static int getState();
+        static void updateConsoleSize();
+        static int getMode();
         window();
         ~window();
 };
