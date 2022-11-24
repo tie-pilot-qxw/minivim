@@ -10,6 +10,7 @@ class file_window : public window {
         POS inFileMousePos;
         POS realMousePos;
         POS printBegin;
+        POS realPrintBegin;
         bool atBottom;
         void print();
         bool normal (int ch);
@@ -22,12 +23,14 @@ class file_window : public window {
         void getRealPos();
         int getLineNum(int l);
         void changeMouse();
-        bool lineMove();/*when the sentence is very long*/
+        bool lineMoveLeft();/*when the sentence is very long*/
+        bool lineMoveRight();
         bool sentenceMoveDown();/*when the page needs to be turned*/
         bool sentenceMoveUp();
         void updateWindowSize();
         int turnLimit();
         POS fileToReal(POS fp);
+        void getRealPrintBegin();
     public:
         file_window();
         bool keyboard();/*the return value tells you whether to change to command mode or not*/

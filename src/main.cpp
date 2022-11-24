@@ -7,9 +7,10 @@
 #include "window.h"
 
 bool call_back (command_window &cw, file_window &fw, information_window &iw){
+    bool rt = true;
     window :: updateConsoleSize();
     if(window :: getMode() == COMMAND) {
-        return cw.tackle();
+        rt = cw.tackle();
     }else {
         if(fw.keyboard()) {
             iw.clear();
@@ -17,7 +18,8 @@ bool call_back (command_window &cw, file_window &fw, information_window &iw){
         }
         else iw.update();
     }
-    return true;
+    doupdate();
+    return rt;
 }
 
 int main() {

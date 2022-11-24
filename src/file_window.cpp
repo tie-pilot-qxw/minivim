@@ -16,13 +16,13 @@ file_window::file_window() {
     updateWindowSize();
     win = newwin(windowSize.first, windowSize.second, 0, 0); 
     keypad(win,true);
-    wrefresh(win);
+    wnoutrefresh(win);
 
     wprintw(win, "Press Esc to Exit");
     wmove(win, 2, 2);
     wprintw(win, "Hello, world!"); /* Print Hello World */
     mvwprintw(win, 3, 2, "This is MiniVim, your input will appear on the next line."); /*Move and Print*/
-    wrefresh(win); /* Print it on to the real screen */
+    wnoutrefresh(win); /* Print it on to the virtual screen */
 
     wmove(win, 4, 2);
 
@@ -70,6 +70,12 @@ bool file_window :: normal (int ch) {
     return false;
 }
 
+void file_window :: getRealPrintBegin() {
+    realPrintBegin = printBegin;
+    while(realPrintBegin.second >= fileText[realPrintBegin.first].length() && realPrintBegin.second > 0)
+        realPrintBegin.second -= windowSize.second;
+}
+
 void file_window :: mouseMoveDown() {
     if (absoluteMousePos.first >= fileText.size() - 1) {
         /*maybe some error report?*/
@@ -78,9 +84,11 @@ void file_window :: mouseMoveDown() {
     absoluteMousePos.first++;
     getInFilePos();
     if (sentenceMoveDown()) {
+        getRealPrintBegin();
         getRealPos();
         print();
     }else {
+        getRealPrintBegin();
         getRealPos();
     }
 }
@@ -93,9 +101,11 @@ void file_window :: mouseMoveUp() {
     absoluteMousePos.first--;
     getInFilePos();
     if (sentenceMoveUp()) {
+        getRealPrintBegin();
         getRealPos();
         print();
     }else {
+        getRealPrintBegin();
         getRealPos();
     }
 }
@@ -104,28 +114,53 @@ void file_window :: mouseMoveLeft() {
     if(absoluteMousePos > inFileMousePos) {
         absoluteMousePos = inFileMousePos;
     }
+    if(realPrintBegin.second < printBegin.second) printBegin = realPrintBegin;
     if(absoluteMousePos.second == 0) {
         /*maybe some error report?*/
         return;
     }
     absoluteMousePos.second--;
     getInFilePos();
-    getRealPos();
+    if (lineMoveLeft()) {
+        getRealPrintBegin();
+        getRealPos();
+        print();
+    }else {
+        getRealPrintBegin();
+        getRealPos();
+    }
 }
 
 void file_window :: mouseMoveRight() {
-    if(absoluteMousePos.second > fileText[inFileMousePos.first].length()) {
+    if(mode == NORMAL && absoluteMousePos.second >= fileText[inFileMousePos.first].length() - 1) {
+        return;
+    }
+    if(absoluteMousePos.second >= fileText[inFileMousePos.first].length()) {
         /*maybe some error report?*/
         return;
     }
     absoluteMousePos.second++;
     getInFilePos();
-    getRealPos();
+    if (lineMoveRight()) {
+        getRealPrintBegin();
+        getRealPos();
+        print();
+    }else {
+        getRealPrintBegin();
+        getRealPos();
+    }
 }
 
 void file_window :: getInFilePos() {
     inFileMousePos.first = absoluteMousePos.first;
-    inFileMousePos.second = std :: min (absoluteMousePos.second, (int)fileText[inFileMousePos.first].length());
+    if(mode == INSERT)
+        inFileMousePos.second = 
+        std :: min (absoluteMousePos.second, (int)fileText[inFileMousePos.first].length());
+    else {
+        inFileMousePos.second = 
+        std :: min (absoluteMousePos.second, (int)fileText[inFileMousePos.first].length() - 1);
+        inFileMousePos.second = std :: max(inFileMousePos.second, 0);
+    }
 }
 
 void file_window :: getRealPos() {
@@ -135,12 +170,12 @@ void file_window :: getRealPos() {
 POS file_window :: fileToReal(POS fp) {
     POS start = std :: make_pair(0, 0);
     POS end = std :: make_pair(0, 0);
-    for(int i = 0; i < printBegin.first ; i ++ ) {
+    for(int i = 0; i < realPrintBegin.first ; i ++ ) {
         start.first += getLineNum(i);
     }
-    int sl = (printBegin.second) / windowSize.second;
+    int sl = (realPrintBegin.second) / windowSize.second;
     start.first += sl;
-    start.second = printBegin.second - sl * windowSize.second;
+    start.second = realPrintBegin.second - sl * windowSize.second;
     for(int i = 0; i < fp.first ; i ++ ) {
         end.first += getLineNum(i);
     }
@@ -156,7 +191,7 @@ int file_window :: getLineNum(int l){
 
 void file_window :: changeMouse() {
     wmove(win, realMousePos.first, realMousePos.second);
-    wrefresh(win);
+    wnoutrefresh(win);
 }
 
 void file_window :: print() {
@@ -164,8 +199,11 @@ void file_window :: print() {
     wmove(win, 0, 0);
     int linenum = 0;
     int i, k;
-    for (i = printBegin.first; i < (int)fileText.size() && linenum < windowSize.first; i++) {
-        k = printBegin.second;
+    for (i = realPrintBegin.first; i < (int)fileText.size() && linenum < windowSize.first; i++) {
+        if (i == realPrintBegin.first) {
+            k = realPrintBegin.second;
+        }
+        else k = 0;
         do{
             wmove(win, linenum, 0);
             for (int j = 0; j < windowSize.second && k < fileText[i].length(); j++ , k++) {
@@ -176,7 +214,7 @@ void file_window :: print() {
     }
     if(i == fileText.size() && k == fileText[i - 1].length()) atBottom=true;
     else atBottom = false;
-    wrefresh(win);
+    wnoutrefresh(win);
 }
 
 void file_window :: insert(int ch) {
@@ -222,22 +260,61 @@ int file_window :: turnLimit() {
 
 bool file_window :: sentenceMoveDown() {
     getRealPos();
-    if (realMousePos.first > windowSize.first - turnLimit()) {
-        if(!atBottom) {
+    bool rt = false;
+    if(!atBottom) {
+        if (realMousePos.first > windowSize.first - turnLimit()) {
             printBegin.first++;
+            rt = true;
+        }
+        POS nxt = fileToReal(POS(inFileMousePos.first, fileText[inFileMousePos.first].length() - 1));
+        if (nxt.first >= windowSize.first) {
+            printBegin.first = inFileMousePos.first;
+            rt = true;
+        }
+    }
+    return rt;
+}
+
+bool file_window :: sentenceMoveUp() {
+    bool rt = false;
+    getRealPos();
+    if (realMousePos.first < turnLimit() - 1) {
+        if (printBegin.first > 0) {
+            printBegin.first--;
+            rt = true;
+            POS the = fileToReal(POS(inFileMousePos.first,0));
+            POS nxt = fileToReal(POS(printBegin.first, 0));
+            if (nxt.first < 0 && the.first >= 0) {
+                printBegin.first++;
+                rt = false;
+            }
+        }
+    }
+    return rt;
+}
+
+bool file_window :: lineMoveLeft() {
+    getRealPos();
+    POS head = fileToReal(POS(inFileMousePos.first, 0));
+    if(realMousePos.first < turnLimit() - 1 && head.first < 0) {
+        if(printBegin.second > 0) {
+            printBegin.second -= windowSize.second;
             return true;
         }
     }
     return false;
 }
 
-bool file_window ::sentenceMoveUp() {
+bool file_window :: lineMoveRight() {
     getRealPos();
-    if(realMousePos.first < turnLimit()) {
-        if(printBegin.first > 0) {
-            printBegin.first--;
-            return true;
-        }
+    POS tail = fileToReal(POS(inFileMousePos.first, fileText[inFileMousePos.first].length() - 1));
+    if(realMousePos.first > windowSize.first - turnLimit() && tail.first >= windowSize.first) {
+        printBegin.second += windowSize.second;
+        return true;
+    }
+    if(realMousePos.first > tail.first) {
+        printBegin.second += windowSize.second;
+        return true;
     }
     return false;
 }
