@@ -66,6 +66,6 @@ void window :: updateMouse() {
     getyx(win, mousePos.first, mousePos.second);
 }
 
-void window :: updateWindowSize() {
-    getmaxyx(win, windowSize.first, windowSize.second);
+void window :: updateStartPos() {
+    startPos = std :: make_pair(0, 0);
 }

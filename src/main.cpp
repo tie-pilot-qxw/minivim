@@ -16,17 +16,18 @@ bool call_back (command_window &cw, file_window &fw, information_window &iw){
             iw.clear();
             cw.init();
         }
-        else iw.update();
+        else iw.update(fw.getCurrentPos());
     }
     doupdate();
     return rt;
 }
 
 int main() {
+    information_window iw;
     command_window cw;
     file_window fw;
-    information_window iw;
     fw.fileRead("../abc");
+    iw.updateFileName("hello world");
     while(call_back(cw,fw,iw));
     return 0;
 }

@@ -12,3 +12,7 @@ void command_window :: init() {
     commandText += ':';
     print();
 }
+
+void command_window :: updateWindowSize() {
+    
+}

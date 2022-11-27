@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <fstream>
 
-file_window::file_window() {
+file_window :: file_window() {
     /*initialize the mousepos*/
     absoluteMousePos = std :: make_pair(0, 0);
     inFileMousePos = std :: make_pair(0, 0);
@@ -234,7 +234,8 @@ int file_window :: getLineNum(int l){
 
 void file_window :: changeMouse() {
     wmove(win, realMousePos.first, realMousePos.second);
-    wnoutrefresh(win);
+    wrefresh(win);
+    curs_set(1);
 }
 
 void file_window :: print() {
@@ -467,4 +468,8 @@ void file_window :: deleteLine() {
     fileText.erase(fileText.begin() + inFileMousePos.first);
     lineHead(false);
     print();
+}
+
+POS file_window :: getCurrentPos() {
+    return inFileMousePos;
 }

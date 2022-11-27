@@ -10,7 +10,6 @@ const int COMMAND = 2;
 class window {
     private:
         static int windowNum;
-        
     protected:
         static POS consoleSize;
         static int colorNum;
@@ -18,12 +17,14 @@ class window {
         static int mode;/*the mode the program is in*/
         bool hasChange;
         POS windowSize;
+        POS startPos;
         POS mousePos;
         WINDOW *win;
         FILE *ferr;
         void updateMouse();
-        virtual void updateWindowSize();
+        virtual void updateWindowSize() = 0;
         virtual void print() = 0;
+        virtual void updateStartPos();
     public:
         static void updateConsoleSize();
         static int getMode();
