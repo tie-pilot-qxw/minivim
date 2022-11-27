@@ -11,14 +11,15 @@ class file_window : public window {
         POS realMousePos;
         POS printBegin;
         POS realPrintBegin;
+        int dNum;
         bool atBottom;
         void print();
         bool normal (int ch);
         void insert (int ch);
-        void mouseMoveLeft();
-        void mouseMoveRight();
-        void mouseMoveUp();
-        void mouseMoveDown();
+        bool mouseMoveLeft(bool flush = true);
+        bool mouseMoveRight(bool flush = true);
+        bool mouseMoveUp(bool flush = true);
+        bool mouseMoveDown(bool flush = true);
         void getInFilePos();
         void getRealPos();
         int getLineNum(int l);
@@ -31,6 +32,12 @@ class file_window : public window {
         int turnLimit();
         POS fileToReal(POS fp);
         void getRealPrintBegin();
+        void nextWordHead();
+        void lastWordHead();
+        bool lineHead(bool flush = true);
+        bool lineTail(bool flush = true);
+        bool isWord(char ch);
+        void deleteLine();
     public:
         file_window();
         bool keyboard();/*the return value tells you whether to change to command mode or not*/
