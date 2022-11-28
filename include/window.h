@@ -18,10 +18,8 @@ class window {
         bool hasChange;
         POS windowSize;
         POS startPos;
-        POS mousePos;
         WINDOW *win;
         FILE *ferr;
-        void updateMouse();
         virtual void updateWindowSize() = 0;
         virtual void print() = 0;
         virtual void updateStartPos();

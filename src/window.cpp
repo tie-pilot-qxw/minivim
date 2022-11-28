@@ -62,10 +62,6 @@ int window :: getMode() {
     return mode;
 }
 
-void window :: updateMouse() {
-    getyx(win, mousePos.first, mousePos.second);
-}
-
 void window :: updateStartPos() {
     startPos = std :: make_pair(0, 0);
 }

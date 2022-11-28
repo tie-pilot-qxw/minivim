@@ -4,9 +4,9 @@
 
 file_window :: file_window() {
     /*initialize the mousepos*/
-    absoluteMousePos = std :: make_pair(0, 0);
-    inFileMousePos = std :: make_pair(0, 0);
-    realMousePos = std :: make_pair(0, 0);
+    absolutePos = std :: make_pair(0, 0);
+    inFilePos = std :: make_pair(0, 0);
+    realPos = std :: make_pair(0, 0);
 
     printBegin = std :: make_pair(0, 0);/*init the print-begin*/
 
@@ -47,16 +47,16 @@ bool file_window :: normal (int ch) {
     }
     switch (ch) {
     case KEY_LEFT:
-        mouseMoveLeft();
+        moveLeft();
         break;
     case KEY_UP:
-        mouseMoveUp();
+        moveUp();
         break;
     case KEY_RIGHT:
-        mouseMoveRight();
+        moveRight();
         break;
     case KEY_DOWN:
-        mouseMoveDown();
+        moveDown();
         break;
     case ERR:
         break;
@@ -65,16 +65,16 @@ bool file_window :: normal (int ch) {
         return true;
         break;
     case 'h':
-        mouseMoveLeft();
+        moveLeft();
         break;
     case 'l':
-        mouseMoveRight();
+        moveRight();
         break;
     case 'j':
-        mouseMoveDown();
+        moveDown();
         break;
     case 'k':
-        mouseMoveUp();
+        moveUp();
         break;
     case 'w':
         nextWordHead();
@@ -95,8 +95,10 @@ bool file_window :: normal (int ch) {
             dNum = 0;
         }
         break;
-    default:
+    case 'i':
         mode = INSERT;
+        break;
+    default:
         break;
     }
     if (ch != ERR && ch != 'd') dNum = 0;
@@ -110,12 +112,12 @@ void file_window :: getRealPrintBegin() {
         realPrintBegin.second -= windowSize.second;
 }
 
-bool file_window :: mouseMoveDown(bool flush) {
-    if (absoluteMousePos.first >= fileText.size() - 1) {
+bool file_window :: moveDown(bool flush) {
+    if (absolutePos.first >= fileText.size() - 1) {
         /*maybe some error report?*/
         return false;
     }
-    absoluteMousePos.first++;
+    absolutePos.first++;
     getInFilePos();
     if (sentenceMoveDown()) {
         getRealPrintBegin();
@@ -129,12 +131,12 @@ bool file_window :: mouseMoveDown(bool flush) {
     }
 }
 
-bool file_window :: mouseMoveUp(bool flush) {
-    if (absoluteMousePos.first == 0) {
+bool file_window :: moveUp(bool flush) {
+    if (absolutePos.first == 0) {
         /*maybe some error report?*/
         return false;
     }
-    absoluteMousePos.first--;
+    absolutePos.first--;
     getInFilePos();
     if (sentenceMoveUp()) {
         getRealPrintBegin();
@@ -148,16 +150,16 @@ bool file_window :: mouseMoveUp(bool flush) {
     }
 }
 
-bool file_window :: mouseMoveLeft(bool flush) {
-    if(absoluteMousePos > inFileMousePos) {
-        absoluteMousePos = inFileMousePos;
+bool file_window :: moveLeft(bool flush) {
+    if(absolutePos > inFilePos) {
+        absolutePos = inFilePos;
     }
     if(realPrintBegin.second < printBegin.second) printBegin = realPrintBegin;
-    if(absoluteMousePos.second == 0) {
+    if(absolutePos.second == 0) {
         /*maybe some error report?*/
         return false;
     }
-    absoluteMousePos.second--;
+    absolutePos.second--;
     getInFilePos();
     if (lineMoveLeft()) {
         getRealPrintBegin();
@@ -171,15 +173,15 @@ bool file_window :: mouseMoveLeft(bool flush) {
     }
 }
 
-bool file_window :: mouseMoveRight(bool flush) {
-    if(mode == NORMAL && absoluteMousePos.second >= fileText[inFileMousePos.first].length() - 1) {
+bool file_window :: moveRight(bool flush) {
+    if(mode == NORMAL && absolutePos.second >= fileText[inFilePos.first].length() - 1) {
         return false;
     }
-    if(absoluteMousePos.second >= fileText[inFileMousePos.first].length()) {
+    if(absolutePos.second >= fileText[inFilePos.first].length()) {
         /*maybe some error report?*/
         return false;
     }
-    absoluteMousePos.second++;
+    absolutePos.second++;
     getInFilePos();
     if (lineMoveRight()) {
         getRealPrintBegin();
@@ -194,19 +196,19 @@ bool file_window :: mouseMoveRight(bool flush) {
 }
 
 void file_window :: getInFilePos() {
-    inFileMousePos.first = absoluteMousePos.first;
+    inFilePos.first = absolutePos.first;
     if(mode == INSERT)
-        inFileMousePos.second = 
-        std :: min (absoluteMousePos.second, (int)fileText[inFileMousePos.first].length());
+        inFilePos.second = 
+        std :: min (absolutePos.second, (int)fileText[inFilePos.first].length());
     else {
-        inFileMousePos.second = 
-        std :: min (absoluteMousePos.second, (int)fileText[inFileMousePos.first].length() - 1);
-        inFileMousePos.second = std :: max(inFileMousePos.second, 0);
+        inFilePos.second = 
+        std :: min (absolutePos.second, (int)fileText[inFilePos.first].length() - 1);
+        inFilePos.second = std :: max(inFilePos.second, 0);
     }
 }
 
 void file_window :: getRealPos() {
-    realMousePos = fileToReal(inFileMousePos);
+    realPos = fileToReal(inFilePos);
 }
 
 POS file_window :: fileToReal(POS fp) {
@@ -233,13 +235,13 @@ int file_window :: getLineNum(int l){
 }
 
 void file_window :: changeMouse() {
-    wmove(win, realMousePos.first, realMousePos.second);
+    wmove(win, realPos.first, realPos.second);
     wrefresh(win);
     curs_set(1);
 }
 
 void file_window :: print() {
-    wclear(win);
+    werase(win);
     wmove(win, 0, 0);
     int linenum = 0;
     int i, k;
@@ -262,7 +264,41 @@ void file_window :: print() {
 }
 
 void file_window :: insert(int ch) {
-    
+   switch (ch) {
+    case KEY_LEFT:
+        moveLeft();
+        break;
+    case KEY_UP:
+        moveUp();
+        break;
+    case KEY_RIGHT:
+        moveRight();
+        break;
+    case KEY_DOWN:
+        moveDown();
+        break;
+    case 27:/*esc*/
+        mode = NORMAL;
+        break;
+    case ERR:
+        break;
+    case KEY_BACKSPACE:/*backspace*/
+        backSpace();
+        break;
+    case '\t':
+        for (int i = 1; i <= 4; i++) insertChar(' ');
+        break;
+    case 330:/*del*/
+        deleteChar();
+        break;
+    case '\n':
+        newLine();
+        break;
+    default:
+        insertChar(ch);
+        break;
+    }
+    changeMouse();
 }
 
 void file_window :: fileRead(std :: string fname) {
@@ -314,13 +350,13 @@ bool file_window :: sentenceMoveDown() {
     getRealPos();
     bool rt = false;
     if(!atBottom) {
-        if (realMousePos.first > windowSize.first - turnLimit()) {
+        if (realPos.first > windowSize.first - turnLimit()) {
             printBegin.first++;
             rt = true;
         }
-        POS nxt = fileToReal(POS(inFileMousePos.first, fileText[inFileMousePos.first].length() - 1));
+        POS nxt = fileToReal(POS(inFilePos.first, fileText[inFilePos.first].length() - 1));
         if (nxt.first >= windowSize.first) {
-            printBegin.first = inFileMousePos.first;
+            printBegin.first = inFilePos.first;
             rt = true;
         }
     }
@@ -330,11 +366,11 @@ bool file_window :: sentenceMoveDown() {
 bool file_window :: sentenceMoveUp() {
     bool rt = false;
     getRealPos();
-    if (realMousePos.first < turnLimit() - 1) {
+    if (realPos.first < turnLimit() - 1) {
         if (printBegin.first > 0) {
             printBegin.first--;
             rt = true;
-            POS the = fileToReal(POS(inFileMousePos.first,0));
+            POS the = fileToReal(POS(inFilePos.first,0));
             POS nxt = fileToReal(POS(printBegin.first, 0));
             if (nxt.first < 0 && the.first >= 0) {
                 printBegin.first++;
@@ -347,8 +383,8 @@ bool file_window :: sentenceMoveUp() {
 
 bool file_window :: lineMoveLeft() {
     getRealPos();
-    POS head = fileToReal(POS(inFileMousePos.first, 0));
-    if(realMousePos.first < turnLimit() - 1 && head.first < 0) {
+    POS head = fileToReal(POS(inFilePos.first, 0));
+    if(realPos.first < turnLimit() - 1 && head.first < 0) {
         if(printBegin.second > 0) {
             printBegin.second -= windowSize.second;
             return true;
@@ -359,12 +395,12 @@ bool file_window :: lineMoveLeft() {
 
 bool file_window :: lineMoveRight() {
     getRealPos();
-    POS tail = fileToReal(POS(inFileMousePos.first, fileText[inFileMousePos.first].length() - 1));
-    if(realMousePos.first > windowSize.first - turnLimit() && tail.first >= windowSize.first) {
+    POS tail = fileToReal(POS(inFilePos.first, fileText[inFilePos.first].length() - 1));
+    if(realPos.first > windowSize.first - turnLimit() && tail.first >= windowSize.first) {
         printBegin.second += windowSize.second;
         return true;
     }
-    if(realMousePos.first > tail.first) {
+    if(realPos.first > tail.first) {
         printBegin.second += windowSize.second;
         return true;
     }
@@ -380,7 +416,7 @@ bool file_window :: isWord(char ch) {
 }
 
 void file_window :: nextWordHead() {
-    POS now = inFileMousePos;
+    POS now = inFilePos;
     bool end = false;
     bool change = false;
     bool ok = false;
@@ -392,21 +428,23 @@ void file_window :: nextWordHead() {
             if(fileText[i][j] == ' ') end = true;
             else if (end && isWord(fileText[i][j])) ok = true;
             else if (!isWord(fileText[i][j])) ok = true;
-            change = (change | mouseMoveRight(false));
+            change = (change | moveRight(false));
             if(ok) break;
         }
         if(ok) break;
+        end = true;
         change = (change | lineHead(false));
-        change = (change | mouseMoveDown(false));
-        if(end && isWord(fileText[i][0])) break;
-        else if (!isWord(fileText[i][0]) && fileText[i][0] != ' ') break;
+        change = (change | moveDown(false));
+        if(end && isWord(fileText[inFilePos.first][0])) break;
+        else if (!isWord(fileText[inFilePos.first][0])
+        && fileText[inFilePos.first][0] != ' ') break;
         j = 1;
     }
     if(change) print();
 }
 
 void file_window :: lastWordHead() {
-    POS now = inFileMousePos;
+    POS now = inFilePos;
     bool end = false;
     bool change = false;
     bool ok = false;
@@ -416,7 +454,7 @@ void file_window :: lastWordHead() {
     for (int i = now.first; i >= 0; i--) {
         if (i == now.first - 1 && fileText[i].length() == 0) {
             if (islast && start) {
-                change = (change | mouseMoveDown(false));
+                change = (change | moveDown(false));
                 change = (change | lineHead(false));
             }
             break;
@@ -425,20 +463,20 @@ void file_window :: lastWordHead() {
             start = true;
             if (!isWord(fileText[i][j]) && end) {
                 if (islast) {
-                    change = (change | mouseMoveDown(false));
+                    change = (change | moveDown(false));
                     change = (change | lineHead(false));
                 }
                 ok = true;
                 break;
             }else if (isWord(fileText[i][j])) end = true;
             else if (!isWord(fileText[i][j]) && fileText[i][j] != ' ') ok = true;
-            if(!islast) change = (change | mouseMoveLeft(false));
+            if(!islast) change = (change | moveLeft(false));
             islast = false;
             if(ok) break;
         }
         if (ok) break;
         if (i == 0) break;
-        change = (change | mouseMoveUp(false));
+        change = (change | moveUp(false));
         change = (change | lineTail(false));
         islast = true;
         j = fileText[i-1].length() - 1;
@@ -448,8 +486,8 @@ void file_window :: lastWordHead() {
 
 bool file_window :: lineHead(bool flush) {
     bool change = false;
-    for(int i = inFileMousePos.second; i > 0; i --) {
-        change = (change | mouseMoveLeft(false));
+    for(int i = inFilePos.second; i > 0; i --) {
+        change = (change | moveLeft(false));
     }
     if (flush && change) print();
     return change;
@@ -457,19 +495,69 @@ bool file_window :: lineHead(bool flush) {
 
 bool file_window :: lineTail(bool flush) {
     bool change = false;
-    for(int i = inFileMousePos.second + 1; i < fileText[inFileMousePos.first].length(); i ++) {
-        change = (change | mouseMoveRight(false));
+    for(int i = inFilePos.second + 1; i < fileText[inFilePos.first].length(); i ++) {
+        change = (change | moveRight(false));
     }
     if (flush && change) print();
     return change;
 }
 
 void file_window :: deleteLine() {
-    fileText.erase(fileText.begin() + inFileMousePos.first);
+    fileText.erase(fileText.begin() + inFilePos.first);
     lineHead(false);
     print();
 }
 
 POS file_window :: getCurrentPos() {
-    return inFileMousePos;
+    return inFilePos;
+}
+
+void file_window :: insertChar(int ch) {
+    absolutePos = inFilePos;
+    fileText[inFilePos.first].insert(inFilePos.second, 1, (char)ch);
+    moveRight(false);
+    print();
+}
+
+void file_window :: backSpace() {
+    if (inFilePos.first == 0 && inFilePos.second == 0) return;
+    if (inFilePos.second == 0) {
+        /*merge to the last line*/
+        moveUp(false);
+        lineTail(false);
+        moveRight(false);
+        fileText[inFilePos.first] += fileText[inFilePos.first + 1];
+        fileText.erase(fileText.begin() + inFilePos.first + 1);
+    }else {
+        moveLeft(false);
+        fileText[inFilePos.first].erase(inFilePos.second, 1);
+    }
+    print();
+}
+
+void file_window :: deleteChar() {
+    if (inFilePos.first == fileText.size() - 1
+    && inFilePos.second == fileText[inFilePos.first].length()) return;
+    if (inFilePos.second == fileText[inFilePos.first].length()) {
+        /*merge the next line*/
+        fileText[inFilePos.first] += fileText[inFilePos.first + 1];
+        fileText.erase(fileText.begin() + inFilePos.first + 1);
+    }else {
+        fileText[inFilePos.first].erase(inFilePos.second, 1);
+    }
+    print();
+}
+
+void file_window :: newLine() {
+    if (inFilePos.second == fileText[inFilePos.first].length()) {
+        fileText.insert(fileText.begin() + inFilePos.first + 1, "");
+        moveDown(false);
+    }else {
+        fileText.insert(fileText.begin() + inFilePos.first + 1,
+        fileText[inFilePos.first].substr(inFilePos.second));
+        fileText[inFilePos.first].erase(inFilePos.second);
+        moveDown(false);
+        lineHead(false);
+    }
+    print();
 }

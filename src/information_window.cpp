@@ -41,13 +41,14 @@ void information_window :: print() {
 }
 
 void information_window :: clear() {
-    wclear(win);
+    werase(win);
     wnoutrefresh(win);
 }
 
 void information_window :: update(POS cpos) {
     if (cpos != currentPos || mode != lastMode) {
         currentPos = cpos;
+        lastMode = mode;
         print();
     }
 }
