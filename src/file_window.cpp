@@ -264,7 +264,7 @@ void file_window :: print() {
 }
 
 void file_window :: insert(int ch) {
-   switch (ch) {
+    switch (ch) {
     case KEY_LEFT:
         moveLeft();
         break;
@@ -327,7 +327,7 @@ void file_window :: fileRead(std :: string fname) {
     }
 
     fin.close();
-
+    if (fileText.size() == 0) fileText.push_back("");
     print();
 }
 
@@ -503,6 +503,8 @@ bool file_window :: lineTail(bool flush) {
 }
 
 void file_window :: deleteLine() {
+    if (fileText.size() == 0) return;
+    hasSave = false;
     fileText.erase(fileText.begin() + inFilePos.first);
     lineHead(false);
     print();
@@ -513,6 +515,7 @@ POS file_window :: getCurrentPos() {
 }
 
 void file_window :: insertChar(int ch) {
+    hasSave = false;
     absolutePos = inFilePos;
     fileText[inFilePos.first].insert(inFilePos.second, 1, (char)ch);
     moveRight(false);
@@ -532,6 +535,7 @@ void file_window :: backSpace() {
         moveLeft(false);
         fileText[inFilePos.first].erase(inFilePos.second, 1);
     }
+    hasSave = false;
     print();
 }
 
@@ -546,6 +550,7 @@ void file_window :: deleteChar() {
         fileText[inFilePos.first].erase(inFilePos.second, 1);
     }
     print();
+    hasSave = false;
 }
 
 void file_window :: newLine() {
@@ -560,4 +565,9 @@ void file_window :: newLine() {
         lineHead(false);
     }
     print();
+    hasSave = false;
+}
+
+std :: vector<std :: string >* file_window :: getFile() {
+    return &fileText;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "window.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 class file_window : public window {
     private:
@@ -47,5 +47,6 @@ class file_window : public window {
         bool keyboard();/*the return value tells you whether to change to command mode or not*/
         void fileRead(std :: string fname);
         void newFile();
+        std :: vector<std :: string >* getFile();
         POS getCurrentPos();
 };

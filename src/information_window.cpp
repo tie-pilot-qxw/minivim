@@ -10,6 +10,7 @@ information_window :: information_window() {
     wnoutrefresh(win);
 
     lastMode = NORMAL;
+    hasClear = true;
 
     print();
 
@@ -43,13 +44,15 @@ void information_window :: print() {
 void information_window :: clear() {
     werase(win);
     wnoutrefresh(win);
+    hasClear = true;
 }
 
 void information_window :: update(POS cpos) {
-    if (cpos != currentPos || mode != lastMode) {
+    if (cpos != currentPos || mode != lastMode || hasClear) {
         currentPos = cpos;
         lastMode = mode;
         print();
+        hasClear = false;
     }
 }
 

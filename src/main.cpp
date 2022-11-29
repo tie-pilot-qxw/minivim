@@ -13,8 +13,9 @@ bool call_back (command_window &cw, file_window &fw, information_window &iw){
         rt = cw.tackle();
     }else {
         if(fw.keyboard()) {
+            auto file = fw.getFile();
             iw.clear();
-            cw.init();
+            cw.init(file);
         }
         else iw.update(fw.getCurrentPos());
     }
@@ -27,7 +28,8 @@ int main() {
     command_window cw;
     file_window fw;
     fw.fileRead("../abc");
-    iw.updateFileName("hello world");
+    iw.updateFileName("../abc");
+    cw.updateFileName("../abc");
     while(call_back(cw,fw,iw));
     return 0;
 }

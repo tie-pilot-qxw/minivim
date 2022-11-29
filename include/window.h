@@ -12,9 +12,9 @@ class window {
         static int windowNum;
     protected:
         static POS consoleSize;
-        static int colorNum;
         static bool change; /*if change != hasChange, you need to update the window size*/
         static int mode;/*the mode the program is in*/
+        static bool hasSave;
         bool hasChange;
         POS windowSize;
         POS startPos;

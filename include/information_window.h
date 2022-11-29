@@ -5,10 +5,11 @@ class information_window : public window {
     private:
         std :: string fileName;
         POS currentPos;
+        int lastMode;
+        bool hasClear;
         void print();
         void updateWindowSize();
         void updateStartPos();
-        int lastMode;
     public:
         information_window();
         void update(POS cpos);

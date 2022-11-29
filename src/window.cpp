@@ -1,13 +1,13 @@
 #include "window.h"
 #include <fstream>
 int window :: windowNum = 0;
-int window :: colorNum = 0;
 bool window :: change = false;
 int window :: mode = NORMAL;
 POS window :: consoleSize = std :: make_pair(0, 0);
+bool window :: hasSave = true;
 
 window :: window() {
-    freopen("error.txt", "w", stderr);
+    ferr = freopen("error.txt", "w", stderr);
     if (windowNum == 0) {
         initscr(); /* Start curses mode */
         raw();
@@ -25,7 +25,6 @@ window :: window() {
         // init color
         start_color();
         init_pair(DEFAULT_COLOR, COLOR_WHITE, COLOR_BLACK);
-        colorNum++;
 
         // set stdscr color
         wbkgd(stdscr, COLOR_PAIR(DEFAULT_COLOR));
