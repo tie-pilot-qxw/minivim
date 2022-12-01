@@ -19,7 +19,6 @@ class window {
         POS windowSize;
         POS startPos;
         WINDOW *win;
-        FILE *ferr;
         virtual void updateWindowSize() = 0;
         virtual void print() = 0;
         virtual void updateStartPos();

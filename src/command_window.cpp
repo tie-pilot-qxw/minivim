@@ -167,8 +167,8 @@ void command_window :: saveFile() {
     //get the file
     std :: fstream fout(fileName.c_str(), std :: ios :: out | std :: ios :: trunc);
     if (!fout.is_open()) {
-        fprintf(stderr, "Can't open the file");
         endwin();
+        fprintf(stderr, "Can't open the file");
         exit(1);
     }
 

@@ -1,5 +1,6 @@
 #include "window.h"
 #include <fstream>
+#include <cstdlib>
 int window :: windowNum = 0;
 bool window :: change = false;
 int window :: mode = NORMAL;
@@ -7,7 +8,6 @@ POS window :: consoleSize = std :: make_pair(0, 0);
 bool window :: hasSave = true;
 
 window :: window() {
-    ferr = freopen("error.txt", "w", stderr);
     if (windowNum == 0) {
         initscr(); /* Start curses mode */
         raw();
@@ -17,8 +17,8 @@ window :: window() {
         // check window size is illegal
         // LINES and COLS store the total line and cols of stdscr
         if (LINES < 5) {
-            fprintf(stderr, "window line size is small than 5");
             endwin();
+            fprintf(stderr, "window line size is small than 5");
             exit(1);
         }
 
@@ -44,8 +44,7 @@ window :: ~window() {
     windowNum--;
     delwin(win);
     if (windowNum == 0) {
-        fclose(ferr);
-        endwin(); /* End curses mode */
+        if (!isendwin()) endwin(); /* End curses mode */
     }
 }
 

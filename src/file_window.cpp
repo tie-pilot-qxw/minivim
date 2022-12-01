@@ -1,6 +1,8 @@
 #include "file_window.h"
 #include <algorithm>
 #include <fstream>
+#include <iostream>
+#include <sys/stat.h>
 
 file_window :: file_window() {
     /*initialize the mousepos*/
@@ -28,6 +30,9 @@ file_window :: file_window() {
 
     wmove(win, 4, 2);
 
+    canWrite = true;
+
+    isTrun = false;
 }
 
 bool file_window :: keyboard() {
@@ -89,6 +94,7 @@ bool file_window :: normal (int ch) {
         lineTail();
         break;
     case 'd':
+        if (!canWrite) break;
         dNum++;
         if (dNum == 2) {
             deleteLine();
@@ -96,6 +102,7 @@ bool file_window :: normal (int ch) {
         }
         break;
     case 'i':
+        if (!canWrite) break;
         mode = INSERT;
         break;
     default:
@@ -305,11 +312,23 @@ void file_window :: fileRead(std :: string fname) {
     fileText.clear();
 
     //get the file
-    std :: fstream fin(fname.c_str());
+    std :: fstream fin;
+    fin.open(fname.c_str());
     if (!fin.is_open()) {
-        fprintf(stderr, "Can't open the file");
-        endwin();
-        exit(1);
+        struct stat check;
+        if (stat(fname.c_str(), &check) != -1 && (check.st_mode & S_IFDIR)) {
+            endwin();
+            fprintf(stderr, "This is a folder\n");
+            exit(1);
+        }
+        int pos = fname.find_last_of('/');
+        std::string path = fname.substr(0, pos);
+        std::string name = fname.substr(pos + 1);
+        if (stat(path.c_str(), &check) == -1 || !(check.st_mode & S_IFDIR)) {
+            endwin();
+            fprintf(stderr, "Wrong path\n");
+            exit(1);
+        }
     }
 
     //read the data
@@ -327,6 +346,10 @@ void file_window :: fileRead(std :: string fname) {
     }
 
     fin.close();
+    if (isTrun) {
+        fileText.clear();
+        hasSave = false;
+    }
     if (fileText.size() == 0) fileText.push_back("");
     print();
 }
@@ -570,4 +593,12 @@ void file_window :: newLine() {
 
 std :: vector<std :: string >* file_window :: getFile() {
     return &fileText;
+}
+
+void file_window :: readOnly() {
+    canWrite = false;
+}
+
+void file_window :: truncation() {
+    isTrun = true;
 }

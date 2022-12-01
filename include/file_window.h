@@ -13,6 +13,8 @@ class file_window : public window {
         POS realPrintBegin;
         int dNum;
         bool atBottom;
+        bool canWrite;
+        bool isTrun;
         void print();
         bool normal (int ch);
         void insert (int ch);
@@ -49,4 +51,6 @@ class file_window : public window {
         void newFile();
         std :: vector<std :: string >* getFile();
         POS getCurrentPos();
+        void readOnly();
+        void truncation();
 };
