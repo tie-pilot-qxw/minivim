@@ -1,11 +1,13 @@
 #pragma once
 #include "window.h"
+#include "input_method.h"
 #include <string>
 #include <vector>
 
 class file_window : public window {
     private:
-        std :: vector<std :: string > fileText;
+        input_method wordMap;
+        std::vector<std::string > fileText;
         POS absolutePos;
         POS inFilePos;
         POS realPos;
@@ -15,6 +17,7 @@ class file_window : public window {
         bool atBottom;
         bool canWrite;
         bool isTrun;
+        int prefixLength;
         void print();
         bool normal (int ch);
         void insert (int ch);
@@ -44,12 +47,13 @@ class file_window : public window {
         void backSpace();
         void deleteChar();
         void newLine();
+        void getPerfix(std::string &str);
     public:
         file_window();
         bool keyboard();/*the return value tells you whether to change to command mode or not*/
-        void fileRead(std :: string fname);
+        void fileRead(const std::string &fname);
         void newFile();
-        std :: vector<std :: string >* getFile();
+        std::vector<std::string >* getFile();
         POS getCurrentPos();
         void readOnly();
         void truncation();

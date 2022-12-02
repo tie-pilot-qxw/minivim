@@ -5,9 +5,9 @@
 const int WARNING_COLOR = 1;
 class command_window : public window {
     private:
-        std :: string fileName;
-        std :: vector<std :: string > *fileText;
-        std :: string commandText;
+        std::string fileName;
+        std::vector<std::string > *fileText;
+        std::string commandText;
         bool quit;
         int pos;
         void print();
@@ -25,6 +25,6 @@ class command_window : public window {
     public:
         command_window();
         bool tackle();
-        void init(std :: vector<std :: string > *file);
-        void updateFileName(std :: string str);
+        void init(std::vector<std::string > *file);
+        void updateFileName(const std::string &str);
 };

@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-command_window :: command_window() {
+command_window::command_window() {
     quit = false;
     /*create a window*/
     updateWindowSize();
@@ -14,14 +14,14 @@ command_window :: command_window() {
     print();
 }
 
-void command_window :: print() {
+void command_window::print() {
     werase(win);
     wmove(win, 0, 0);
     wprintw(win, "%s", commandText.c_str());
     wnoutrefresh(win);
 }
 
-void command_window :: init(std :: vector<std :: string > *file) {
+void command_window::init(std::vector<std::string > *file) {
     fileText = file;
     pos = 1;
     commandText.clear();
@@ -30,21 +30,21 @@ void command_window :: init(std :: vector<std :: string > *file) {
     print();
 }
 
-void command_window :: updateWindowSize() {
+void command_window::updateWindowSize() {
     windowSize.first = 1;
     windowSize.second = consoleSize.second;
 }
 
-void command_window :: updateStartPos() {
+void command_window::updateStartPos() {
     startPos.first = consoleSize.first - 1;
     startPos.second = 0;
 }
 
-void command_window :: clear() {
+void command_window::clear() {
     werase(win);
     wnoutrefresh;
 }
-bool command_window :: tackle() {
+bool command_window::tackle() {
     int ch = getch();
     bool rt = true;
     if(quit && ch != ERR) {
@@ -84,7 +84,7 @@ bool command_window :: tackle() {
     return rt;
 }
 
-void command_window :: moveLeft() {
+void command_window::moveLeft() {
     if(pos == 0) {
         /*maybe some error report?*/
         return;
@@ -92,7 +92,7 @@ void command_window :: moveLeft() {
     pos--;
 }
 
-void command_window :: moveRight() {
+void command_window::moveRight() {
     if(pos >= commandText.length()) {
         /*maybe some error report?*/
         return;
@@ -100,19 +100,19 @@ void command_window :: moveRight() {
     pos++;
 }
 
-void command_window :: changeMouse() {
+void command_window::changeMouse() {
     wmove(win, 0, pos);
     wrefresh(win);
     curs_set(1);
 }
 
-void command_window :: insertChar(int ch) {
+void command_window::insertChar(int ch) {
     commandText.insert(pos, 1, (char)ch);
     moveRight();
     print();
 }
 
-void command_window :: backSpace() {
+void command_window::backSpace() {
     if (pos == 0) return;
     moveLeft();
     commandText.erase(pos, 1);
@@ -120,14 +120,14 @@ void command_window :: backSpace() {
     if (commandText.length() == 0) mode = NORMAL;
 }
 
-void command_window :: deleteChar() {
+void command_window::deleteChar() {
     if (pos == commandText.length()) return;
     commandText.erase(pos, 1);
     print();
     if (pos == commandText.length()) mode = NORMAL;
 }
 
-bool command_window :: check() {
+bool command_window::check() {
     if (commandText == ":w") {
         hasSave = true;
         saveFile();
@@ -162,10 +162,10 @@ bool command_window :: check() {
     }
 }
 
-void command_window :: saveFile() {
+void command_window::saveFile() {
 
     //get the file
-    std :: fstream fout(fileName.c_str(), std :: ios :: out | std :: ios :: trunc);
+    std::fstream fout(fileName.c_str(), std::ios::out | std::ios::trunc);
     if (!fout.is_open()) {
         endwin();
         fprintf(stderr, "Can't open the file");
@@ -180,7 +180,7 @@ void command_window :: saveFile() {
 
 }
 
-void command_window :: updateFileName(std :: string str) {
+void command_window::updateFileName(const std::string &str) {
     fileName = str;
     print();
 }

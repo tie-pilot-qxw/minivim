@@ -5,13 +5,13 @@
 #include "file_window.h"
 #include "information_window.h"
 #include "window.h"
-
+#define debug
 
 
 bool call_back (command_window &cw, file_window &fw, information_window &iw){
     bool rt = true;
-    window :: updateConsoleSize();
-    if(window :: getMode() == COMMAND) {
+    window::updateConsoleSize();
+    if(window::getMode() == COMMAND) {
         rt = cw.tackle();
     }else {
         if(fw.keyboard()) {
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
     #endif
     
     #ifdef debug
-    fw.fileRead("/home/qxw/minivim/abcd");
+    fw.fileRead("/home/qxw/minivim/abc");
     iw.updateFileName("/home/qxw/minivim/abc");
     cw.updateFileName("/home/qxw/minivim/abc");
     #endif

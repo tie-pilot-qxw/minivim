@@ -1,13 +1,13 @@
 #include "window.h"
 #include <fstream>
 #include <cstdlib>
-int window :: windowNum = 0;
-bool window :: change = false;
-int window :: mode = NORMAL;
-POS window :: consoleSize = std :: make_pair(0, 0);
-bool window :: hasSave = true;
+int window::windowNum = 0;
+bool window::change = false;
+int window::mode = NORMAL;
+POS window::consoleSize = std::make_pair(0, 0);
+bool window::hasSave = true;
 
-window :: window() {
+window::window() {
     if (windowNum == 0) {
         initscr(); /* Start curses mode */
         raw();
@@ -19,6 +19,7 @@ window :: window() {
         if (LINES < 5) {
             endwin();
             fprintf(stderr, "window line size is small than 5");
+
             exit(1);
         }
 
@@ -40,7 +41,7 @@ window :: window() {
 }
 
 
-window :: ~window() {
+window::~window() {
     windowNum--;
     delwin(win);
     if (windowNum == 0) {
@@ -48,7 +49,7 @@ window :: ~window() {
     }
 }
 
-void window :: updateConsoleSize() {
+void window::updateConsoleSize() {
     POS newsize;
     getmaxyx(stdscr, newsize.first, newsize.second);
     if(newsize == consoleSize) return;
@@ -56,10 +57,10 @@ void window :: updateConsoleSize() {
     change^=1;
 }
 
-int window :: getMode() {
+int window::getMode() {
     return mode;
 }
 
-void window :: updateStartPos() {
-    startPos = std :: make_pair(0, 0);
+void window::updateStartPos() {
+    startPos = std::make_pair(0, 0);
 }

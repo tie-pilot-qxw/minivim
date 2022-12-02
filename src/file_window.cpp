@@ -4,13 +4,13 @@
 #include <iostream>
 #include <sys/stat.h>
 
-file_window :: file_window() {
+file_window::file_window() {
     /*initialize the mousepos*/
-    absolutePos = std :: make_pair(0, 0);
-    inFilePos = std :: make_pair(0, 0);
-    realPos = std :: make_pair(0, 0);
+    absolutePos = std::make_pair(0, 0);
+    inFilePos = std::make_pair(0, 0);
+    realPos = std::make_pair(0, 0);
 
-    printBegin = std :: make_pair(0, 0);/*init the print-begin*/
+    printBegin = std::make_pair(0, 0);/*init the print-begin*/
 
     atBottom = true;
 
@@ -35,7 +35,7 @@ file_window :: file_window() {
     isTrun = false;
 }
 
-bool file_window :: keyboard() {
+bool file_window::keyboard() {
     int ch=getch();
     if (mode == NORMAL) return normal(ch);
     else if (mode == INSERT) {
@@ -45,7 +45,7 @@ bool file_window :: keyboard() {
     return true;
 }
 
-bool file_window :: normal (int ch) {
+bool file_window::normal (int ch) {
     if(hasChange != change) {
         hasChange ^= 1;
         /*flush*/
@@ -104,6 +104,12 @@ bool file_window :: normal (int ch) {
     case 'i':
         if (!canWrite) break;
         mode = INSERT;
+        if (wordMap.initSuc()) {
+            updateWindowSize();
+            wresize(win, windowSize.first, windowSize.second);
+            wordMap.wake();
+            print();
+        }
         break;
     default:
         break;
@@ -113,13 +119,13 @@ bool file_window :: normal (int ch) {
     return false;
 }
 
-void file_window :: getRealPrintBegin() {
+void file_window::getRealPrintBegin() {
     realPrintBegin = printBegin;
     while(realPrintBegin.second >= fileText[realPrintBegin.first].length() && realPrintBegin.second > 0)
         realPrintBegin.second -= windowSize.second;
 }
 
-bool file_window :: moveDown(bool flush) {
+bool file_window::moveDown(bool flush) {
     if (absolutePos.first >= fileText.size() - 1) {
         /*maybe some error report?*/
         return false;
@@ -138,7 +144,7 @@ bool file_window :: moveDown(bool flush) {
     }
 }
 
-bool file_window :: moveUp(bool flush) {
+bool file_window::moveUp(bool flush) {
     if (absolutePos.first == 0) {
         /*maybe some error report?*/
         return false;
@@ -157,7 +163,7 @@ bool file_window :: moveUp(bool flush) {
     }
 }
 
-bool file_window :: moveLeft(bool flush) {
+bool file_window::moveLeft(bool flush) {
     if(absolutePos > inFilePos) {
         absolutePos = inFilePos;
     }
@@ -180,7 +186,7 @@ bool file_window :: moveLeft(bool flush) {
     }
 }
 
-bool file_window :: moveRight(bool flush) {
+bool file_window::moveRight(bool flush) {
     if(mode == NORMAL && absolutePos.second >= fileText[inFilePos.first].length() - 1) {
         return false;
     }
@@ -202,25 +208,25 @@ bool file_window :: moveRight(bool flush) {
     }
 }
 
-void file_window :: getInFilePos() {
+void file_window::getInFilePos() {
     inFilePos.first = absolutePos.first;
     if(mode == INSERT)
         inFilePos.second = 
-        std :: min (absolutePos.second, (int)fileText[inFilePos.first].length());
+        std::min (absolutePos.second, (int)fileText[inFilePos.first].length());
     else {
         inFilePos.second = 
-        std :: min (absolutePos.second, (int)fileText[inFilePos.first].length() - 1);
-        inFilePos.second = std :: max(inFilePos.second, 0);
+        std::min (absolutePos.second, (int)fileText[inFilePos.first].length() - 1);
+        inFilePos.second = std::max(inFilePos.second, 0);
     }
 }
 
-void file_window :: getRealPos() {
+void file_window::getRealPos() {
     realPos = fileToReal(inFilePos);
 }
 
-POS file_window :: fileToReal(POS fp) {
-    POS start = std :: make_pair(0, 0);
-    POS end = std :: make_pair(0, 0);
+POS file_window::fileToReal(POS fp) {
+    POS start = std::make_pair(0, 0);
+    POS end = std::make_pair(0, 0);
     for(int i = 0; i < realPrintBegin.first ; i ++ ) {
         start.first += getLineNum(i);
     }
@@ -233,21 +239,21 @@ POS file_window :: fileToReal(POS fp) {
     int el = (fp.second) / windowSize.second;
     end.first += el;
     end.second = fp.second - el * windowSize.second;
-    return std :: make_pair(end.first - start.first, end.second - start.second);
+    return std::make_pair(end.first - start.first, end.second - start.second);
 }
 
-int file_window :: getLineNum(int l){
+int file_window::getLineNum(int l){
     /*may be you should tackle the tab*/
-    return ((std :: max((int)fileText[l].length() - 1, 0)) / windowSize.second) + 1;
+    return ((std::max((int)fileText[l].length() - 1, 0)) / windowSize.second) + 1;
 }
 
-void file_window :: changeMouse() {
+void file_window::changeMouse() {
     wmove(win, realPos.first, realPos.second);
     wrefresh(win);
     curs_set(1);
 }
 
-void file_window :: print() {
+void file_window::print() {
     werase(win);
     wmove(win, 0, 0);
     int linenum = 0;
@@ -270,27 +276,49 @@ void file_window :: print() {
     wnoutrefresh(win);
 }
 
-void file_window :: insert(int ch) {
+void file_window::insert(int ch) {
+    bool wordchange = false;
     switch (ch) {
     case KEY_LEFT:
         moveLeft();
         break;
     case KEY_UP:
-        moveUp();
+        if (prefixLength > 0 && wordMap.initSuc()) {
+            wordMap.lastWord();
+            wordchange = true;
+        }else moveUp();
         break;
     case KEY_RIGHT:
         moveRight();
         break;
     case KEY_DOWN:
-        moveDown();
+        if (prefixLength > 0 && wordMap.initSuc()) {
+            wordMap.nextWord();
+            wordchange = true;
+        }else moveDown();
         break;
     case 27:/*esc*/
         mode = NORMAL;
+        if (wordMap.initSuc()) {
+            wordchange = true;
+            updateWindowSize();
+            prefixLength = 0;
+            wordMap.sleep();
+            wresize(win, windowSize.first, windowSize.second);
+            print();
+        }
         break;
     case ERR:
         break;
     case KEY_BACKSPACE:/*backspace*/
         backSpace();
+        if (wordMap.initSuc() && prefixLength > 0) {
+            wordchange = true;
+            std::string pre;
+            getPerfix(pre);
+            prefixLength = pre.length();
+            wordMap.update(pre);
+        }
         break;
     case '\t':
         for (int i = 1; i <= 4; i++) insertChar(' ');
@@ -299,20 +327,54 @@ void file_window :: insert(int ch) {
         deleteChar();
         break;
     case '\n':
-        newLine();
+        if (wordMap.initSuc() && prefixLength > 0 && wordMap.select()) {
+            std::string str = wordMap.getWord();
+            for (int i = 0; i < str.length(); i++) insertChar(str[i]);
+        }else newLine();
+        break;
+    case 338:/*PageDn*/
+        if (wordMap.initSuc() && prefixLength > 0) {
+            wordchange = true;
+            wordMap.pageDown();
+        }
+        break;
+    case 339:/*PageUp*/
+        if (wordMap.initSuc() && prefixLength > 0) {
+            wordchange = true;
+            wordMap.pageUp();
+        }
         break;
     default:
+        if (ch >= '1' && ch <= '9' ) {
+            if (wordMap.select(ch-'0')) {
+                std::string str = wordMap.getWord();
+                for (int i = 0; i < str.length(); i++) insertChar(str[i]);
+                break;
+            }
+        }
         insertChar(ch);
+        if (((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) && wordMap.initSuc()) {
+            wordchange = true;
+            std::string pre;
+            getPerfix(pre);
+            prefixLength = pre.length();
+            wordMap.update(pre);
+        }
+        
         break;
+    }
+    if (!wordchange && wordMap.initSuc() && ch != ERR) {
+        prefixLength = 0;
+        wordMap.clear();
     }
     changeMouse();
 }
 
-void file_window :: fileRead(std :: string fname) {
+void file_window::fileRead(const std::string &fname) {
     fileText.clear();
 
     //get the file
-    std :: fstream fin;
+    std::fstream fin;
     fin.open(fname.c_str());
     if (!fin.is_open()) {
         struct stat check;
@@ -332,9 +394,9 @@ void file_window :: fileRead(std :: string fname) {
     }
 
     //read the data
-    std :: string data;
+    std::string data;
     while (getline(fin, data)) {
-        std :: string temp;
+        std::string temp;
         for (int i = 0; i < data.length(); i ++) {
             if (data[i] == '\t') {
                 for (int j = 1; j <= 4; j++) {
@@ -354,22 +416,23 @@ void file_window :: fileRead(std :: string fname) {
     print();
 }
 
-void file_window :: updateWindowSize() {
-    windowSize.first = consoleSize.first - 1;
+void file_window::updateWindowSize() {
+    if (mode == INSERT) windowSize.first = consoleSize.first - 2;
+    else windowSize.first = consoleSize.first - 1;
     windowSize.second = consoleSize.second;
 }
 
-void file_window :: newFile() {
+void file_window::newFile() {
     /*the first line*/
     fileText.push_back("");
     /*to be continue*/
 }
 
-int file_window :: turnLimit() {
-    return std :: min(5, (windowSize.first + 1) / 2);
+int file_window::turnLimit() {
+    return std::min(5, (windowSize.first + 1) / 2);
 }
 
-bool file_window :: sentenceMoveDown() {
+bool file_window::sentenceMoveDown() {
     getRealPos();
     bool rt = false;
     if(!atBottom) {
@@ -386,7 +449,7 @@ bool file_window :: sentenceMoveDown() {
     return rt;
 }
 
-bool file_window :: sentenceMoveUp() {
+bool file_window::sentenceMoveUp() {
     bool rt = false;
     getRealPos();
     if (realPos.first < turnLimit() - 1) {
@@ -404,7 +467,7 @@ bool file_window :: sentenceMoveUp() {
     return rt;
 }
 
-bool file_window :: lineMoveLeft() {
+bool file_window::lineMoveLeft() {
     getRealPos();
     POS head = fileToReal(POS(inFilePos.first, 0));
     if(realPos.first < turnLimit() - 1 && head.first < 0) {
@@ -416,7 +479,7 @@ bool file_window :: lineMoveLeft() {
     return false;
 }
 
-bool file_window :: lineMoveRight() {
+bool file_window::lineMoveRight() {
     getRealPos();
     POS tail = fileToReal(POS(inFilePos.first, fileText[inFilePos.first].length() - 1));
     if(realPos.first > windowSize.first - turnLimit() && tail.first >= windowSize.first) {
@@ -430,7 +493,7 @@ bool file_window :: lineMoveRight() {
     return false;
 }
 
-bool file_window :: isWord(char ch) {
+bool file_window::isWord(char ch) {
     if (ch >= 'a' && ch <= 'z') return true;
     if (ch >= 'A' && ch <= 'Z') return true;
     if (ch >= '0' && ch <= '9') return true;
@@ -438,7 +501,7 @@ bool file_window :: isWord(char ch) {
     return false;
 }
 
-void file_window :: nextWordHead() {
+void file_window::nextWordHead() {
     POS now = inFilePos;
     bool end = false;
     bool change = false;
@@ -466,7 +529,7 @@ void file_window :: nextWordHead() {
     if(change) print();
 }
 
-void file_window :: lastWordHead() {
+void file_window::lastWordHead() {
     POS now = inFilePos;
     bool end = false;
     bool change = false;
@@ -507,7 +570,7 @@ void file_window :: lastWordHead() {
     if(change) print();
 }
 
-bool file_window :: lineHead(bool flush) {
+bool file_window::lineHead(bool flush) {
     bool change = false;
     for(int i = inFilePos.second; i > 0; i --) {
         change = (change | moveLeft(false));
@@ -516,7 +579,7 @@ bool file_window :: lineHead(bool flush) {
     return change;
 }
 
-bool file_window :: lineTail(bool flush) {
+bool file_window::lineTail(bool flush) {
     bool change = false;
     for(int i = inFilePos.second + 1; i < fileText[inFilePos.first].length(); i ++) {
         change = (change | moveRight(false));
@@ -525,7 +588,7 @@ bool file_window :: lineTail(bool flush) {
     return change;
 }
 
-void file_window :: deleteLine() {
+void file_window::deleteLine() {
     if (fileText.size() == 0) return;
     hasSave = false;
     fileText.erase(fileText.begin() + inFilePos.first);
@@ -533,11 +596,11 @@ void file_window :: deleteLine() {
     print();
 }
 
-POS file_window :: getCurrentPos() {
+POS file_window::getCurrentPos() {
     return inFilePos;
 }
 
-void file_window :: insertChar(int ch) {
+void file_window::insertChar(int ch) {
     hasSave = false;
     absolutePos = inFilePos;
     fileText[inFilePos.first].insert(inFilePos.second, 1, (char)ch);
@@ -545,7 +608,7 @@ void file_window :: insertChar(int ch) {
     print();
 }
 
-void file_window :: backSpace() {
+void file_window::backSpace() {
     if (inFilePos.first == 0 && inFilePos.second == 0) return;
     if (inFilePos.second == 0) {
         /*merge to the last line*/
@@ -562,7 +625,7 @@ void file_window :: backSpace() {
     print();
 }
 
-void file_window :: deleteChar() {
+void file_window::deleteChar() {
     if (inFilePos.first == fileText.size() - 1
     && inFilePos.second == fileText[inFilePos.first].length()) return;
     if (inFilePos.second == fileText[inFilePos.first].length()) {
@@ -576,7 +639,7 @@ void file_window :: deleteChar() {
     hasSave = false;
 }
 
-void file_window :: newLine() {
+void file_window::newLine() {
     if (inFilePos.second == fileText[inFilePos.first].length()) {
         fileText.insert(fileText.begin() + inFilePos.first + 1, "");
         moveDown(false);
@@ -591,14 +654,25 @@ void file_window :: newLine() {
     hasSave = false;
 }
 
-std :: vector<std :: string >* file_window :: getFile() {
+std::vector<std::string >* file_window::getFile() {
     return &fileText;
 }
 
-void file_window :: readOnly() {
+void file_window::readOnly() {
     canWrite = false;
 }
 
-void file_window :: truncation() {
+void file_window::truncation() {
     isTrun = true;
+}
+
+void file_window::getPerfix(std::string &str) {
+    int i = inFilePos.second - 1;
+    for (; i >= 0; i--) {
+        if (!((fileText[inFilePos.first][i] >= 'a' && fileText[inFilePos.first][i] <= 'z')
+        || (fileText[inFilePos.first][i] >= 'A' && fileText[inFilePos.first][i] <= 'Z'))) {
+            break;
+        }
+    }
+    str = fileText[inFilePos.first].substr(i + 1, inFilePos.second - i - 1);
 }

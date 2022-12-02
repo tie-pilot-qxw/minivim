@@ -3,7 +3,7 @@
 #include <string>
 class information_window : public window {
     private:
-        std :: string fileName;
+        std::string fileName;
         POS currentPos;
         int lastMode;
         bool hasClear;
@@ -14,5 +14,5 @@ class information_window : public window {
         information_window();
         void update(POS cpos);
         void clear();
-        void updateFileName(std :: string str);
+        void updateFileName(const std::string &str);
 };
