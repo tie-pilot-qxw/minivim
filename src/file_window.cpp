@@ -422,12 +422,6 @@ void file_window::updateWindowSize() {
     windowSize.second = consoleSize.second;
 }
 
-void file_window::newFile() {
-    /*the first line*/
-    fileText.push_back("");
-    /*to be continue*/
-}
-
 int file_window::turnLimit() {
     return std::min(5, (windowSize.first + 1) / 2);
 }

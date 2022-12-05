@@ -9,13 +9,16 @@ const int INSERT = 1;
 const int COMMAND = 2;
 class window {
     private:
-        static int windowNum;
+        static int windowNum;/*to record the number of windows*/
     protected:
         static POS consoleSize;
-        static bool change; /*if change != hasChange, you need to update the window size*/
-        static int mode;/*the mode the program is in*/
-        static bool hasSave;
+        
+        /*if change != hasChange, you need to update the window size*/
+        static bool change;
         bool hasChange;
+        
+        static bool hasSave;
+        static int mode;/*the mode the program is in*/
         POS windowSize;
         POS startPos;
         WINDOW *win;

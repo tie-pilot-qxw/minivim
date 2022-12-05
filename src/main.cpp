@@ -5,7 +5,7 @@
 #include "file_window.h"
 #include "information_window.h"
 #include "window.h"
-#define debug
+//#define debug
 
 
 bool call_back (command_window &cw, file_window &fw, information_window &iw){
@@ -39,7 +39,9 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "please input the file name\n");
         return 0;
     }
-    if (argc == 2 && argv[1][0] != '-') {
+
+    /*minivim-bin <filename>*/
+    if (argc == 2 && argv[1][0] != '-') { 
         fw.fileRead(argv[1]);
         iw.updateFileName(argv[1]);
         cw.updateFileName(argv[1]);
@@ -48,8 +50,13 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "the command should be: minivim-bin [options] <filename>\n");
             return 0;
         }
+        
+        /*-t  clear the file before writing*/
+        /*-R read only*/
+
         while ((ch = getopt(argc, argv, "t:R:")) != -1) {
             if (num == 1) {
+                /*only one command can be used a time*/
                 fprintf(stderr, "too many options\n");
                 return 0;
             }
@@ -60,6 +67,8 @@ int main(int argc, char *argv[]) {
             case 'R':
                 fw.readOnly();
                 break;
+
+            /*the ch is ? and the error will be reported by getopt*/
             default:
                 return 0;
                 break;
@@ -78,6 +87,7 @@ int main(int argc, char *argv[]) {
     cw.updateFileName("/home/qxw/minivim/abc");
     #endif
 
+    /*where the promgram actually begins*/
     while(call_back(cw,fw,iw));
     return 0;
 }

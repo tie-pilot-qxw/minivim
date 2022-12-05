@@ -5,8 +5,8 @@ class information_window : public window {
     private:
         std::string fileName;
         POS currentPos;
-        int lastMode;
-        bool hasClear;
+        int lastMode;/*to check whether the mode has been changed*/
+        bool hasClear;/*whether the window has been cleared*/
         void print();
         void updateWindowSize();
         void updateStartPos();

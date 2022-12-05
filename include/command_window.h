@@ -7,20 +7,33 @@ class command_window : public window {
     private:
         std::string fileName;
         std::vector<std::string > *fileText;
-        std::string commandText;
-        bool quit;
-        int pos;
+        std::string commandText;/*the current command*/
+        std::vector<std::string > commandHistory;
+
+        bool quit;/*whether to quit command mode*/
+
+        int historyNum;/*the id of the current command in the command history*/
+
+        int pos;/*curse pos*/
+
         void print();
+        void changeMouse();
         void updateWindowSize();
         void updateStartPos();
+
+        /*move the curse*/
         void moveLeft();
         void moveRight();
+
+        /*modify the command*/
         void backSpace();
         void deleteChar();
         void insertChar(int ch);
-        void changeMouse();
-        bool check();
+        
+        bool check();/*tackle the command*/
+
         void clear();
+        
         void saveFile();
     public:
         command_window();

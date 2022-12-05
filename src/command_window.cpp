@@ -24,6 +24,8 @@ void command_window::print() {
 void command_window::init(std::vector<std::string > *file) {
     fileText = file;
     pos = 1;
+    quit = false;
+    historyNum = -1;
     commandText.clear();
     commandText += ':';
     wbkgd(win, COLOR_PAIR(DEFAULT_COLOR));
@@ -60,6 +62,17 @@ bool command_window::tackle() {
     case KEY_RIGHT:
         moveRight();
         break;
+    case KEY_UP:
+        if (historyNum == -1) historyNum = commandHistory.size() - 1;
+        else if (historyNum > 0) historyNum--;
+        commandText = commandHistory[historyNum];
+        print();
+        break;
+    case KEY_DOWN:
+        if (historyNum >= 0 && historyNum < commandHistory.size() - 1) historyNum++;
+        commandText = commandHistory[historyNum];
+        print();
+        break;
     case 27:/*esc*/
         mode = NORMAL;
         break;
@@ -67,17 +80,20 @@ bool command_window::tackle() {
         break;
     case KEY_BACKSPACE:/*backspace*/
         backSpace();
+        historyNum = -1;
         break;
     case '\t':
         break;
     case 330:/*del*/
         deleteChar();
+        historyNum = -1;
         break;
     case '\n':
         rt = check();
         break;
     default:
         insertChar(ch);
+        historyNum = -1;
         break;
     }
     if(!quit) changeMouse();
@@ -128,6 +144,11 @@ void command_window::deleteChar() {
 }
 
 bool command_window::check() {
+    if (historyNum != -1) {
+        commandHistory.erase(commandHistory.begin() + historyNum);
+        historyNum = -1;
+    }
+    commandHistory.push_back(commandText);
     if (commandText == ":w") {
         hasSave = true;
         saveFile();
