@@ -385,11 +385,12 @@ void file_window::fileRead(const std::string &fname) {
         }
         int pos = fname.find_last_of('/');
         std::string path = fname.substr(0, pos);
-        std::string name = fname.substr(pos + 1);
-        if (stat(path.c_str(), &check) == -1 || !(check.st_mode & S_IFDIR)) {
-            endwin();
-            fprintf(stderr, "Wrong path\n");
-            exit(1);
+        if (pos != std::string::npos){
+            if (stat(path.c_str(), &check) == -1 || !(check.st_mode & S_IFDIR)) {
+                endwin();
+                fprintf(stderr, "Wrong path\n");
+                exit(1);
+            }
         }
     }
 
