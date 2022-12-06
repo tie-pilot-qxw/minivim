@@ -14,17 +14,25 @@ class window {
         static POS consoleSize;
         
         /*if change != hasChange, you need to update the window size*/
-        static bool change;
-        bool hasChange;
+        static int change;
+        int hasChange;
         
         static bool hasSave;
+
         static int mode;/*the mode the program is in*/
+
+        /*the window*/
         POS windowSize;
         POS startPos;
         WINDOW *win;
+
+        /*update the window*/
+        bool updateWindow();
         virtual void updateWindowSize() = 0;
-        virtual void print() = 0;
         virtual void updateStartPos();
+
+        virtual void print() = 0;
+
     public:
         static void updateConsoleSize();
         static int getMode();

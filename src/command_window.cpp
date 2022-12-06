@@ -29,6 +29,7 @@ void command_window::init(std::vector<std::string > *file) {
     commandText.clear();
     commandText += ':';
     wbkgd(win, COLOR_PAIR(DEFAULT_COLOR));
+    updateWindow();
     print();
 }
 
@@ -47,6 +48,7 @@ void command_window::clear() {
     wnoutrefresh;
 }
 bool command_window::tackle() {
+    updateWindow();
     int ch = getch();
     bool rt = true;
     if(quit && ch != ERR) {

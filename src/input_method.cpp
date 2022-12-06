@@ -16,6 +16,7 @@ input_method::input_method() {
 }
 
 void input_method::wake() {
+    updateWindow();
     wbkgd(win, COLOR_PAIR(WORD_COMPLETE_COLOR));
     wnoutrefresh(win);
 }
@@ -28,6 +29,7 @@ void input_method::sleep() {
 
 void input_method::print() {
     werase(win);
+    updateWindow();
     curs_set(0);
     wmove(win, 0, 0);
     if (prefix.length() != 0) {

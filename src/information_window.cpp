@@ -48,6 +48,7 @@ void information_window::clear() {
 }
 
 void information_window::update(POS cpos) {
+    updateWindow();
     if (cpos != currentPos || mode != lastMode || hasClear) {
         currentPos = cpos;
         lastMode = mode;

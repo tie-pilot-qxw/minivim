@@ -37,6 +37,10 @@ file_window::file_window() {
 
 bool file_window::keyboard() {
     int ch=getch();
+    if (updateWindow()) {
+        getRealPrintBegin();
+        getRealPos();
+    }
     if (mode == NORMAL) return normal(ch);
     else if (mode == INSERT) {
         insert(ch);
@@ -46,10 +50,6 @@ bool file_window::keyboard() {
 }
 
 bool file_window::normal (int ch) {
-    if(hasChange != change) {
-        hasChange ^= 1;
-        /*flush*/
-    }
     switch (ch) {
     case KEY_LEFT:
         moveLeft();
@@ -279,6 +279,8 @@ void file_window::print() {
 void file_window::insert(int ch) {
     bool wordchange = false;
     switch (ch) {
+    case KEY_RESIZE:/*when the window size change, it will receive -102*/
+        break;
     case KEY_LEFT:
         moveLeft();
         break;
@@ -302,6 +304,7 @@ void file_window::insert(int ch) {
         if (wordMap.initSuc()) {
             wordchange = true;
             updateWindowSize();
+            wresize(win, windowSize.first, windowSize.second);
             prefixLength = 0;
             wordMap.sleep();
             wresize(win, windowSize.first, windowSize.second);

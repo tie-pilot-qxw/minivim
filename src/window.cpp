@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cstdlib>
 int window::windowNum = 0;
-bool window::change = false;
+int window::change = 0;
 int window::mode = NORMAL;
 POS window::consoleSize = std::make_pair(0, 0);
 bool window::hasSave = true;
@@ -37,7 +37,7 @@ window::window() {
         updateConsoleSize();
     }
     windowNum++;
-    hasChange = false;
+    hasChange = 0;
 }
 
 
@@ -54,7 +54,7 @@ void window::updateConsoleSize() {
     getmaxyx(stdscr, newsize.first, newsize.second);
     if(newsize == consoleSize) return;
     consoleSize = newsize;
-    change^=1;
+    change++;
 }
 
 int window::getMode() {
@@ -63,4 +63,16 @@ int window::getMode() {
 
 void window::updateStartPos() {
     startPos = std::make_pair(0, 0);
+}
+
+bool window::updateWindow() {
+    if (hasChange == change) return false;
+    hasChange = change;
+    werase(win);
+    updateWindowSize();
+    updateStartPos();
+    wresize(win, windowSize.first, windowSize.second);
+    mvwin(win, startPos.first, startPos.second);
+    print();
+    return true;
 }
